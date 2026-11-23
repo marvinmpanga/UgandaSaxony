@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
             PageSeeder::class,
             SiteStatSeeder::class,
             ContentSeeder::class,
+            ProfileTemplateSeeder::class,
+            TeamMemberSeeder::class,
         ]);
     }
 }

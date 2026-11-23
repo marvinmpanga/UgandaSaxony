@@ -8,7 +8,11 @@ import { cn } from '@/lib/utils';
 type Content = Record<string, any>;
 
 function isExternal(url: string): boolean {
-    return /^(https?:|mailto:|tel:)/.test(url) || /\.(pdf|docx?)$/i.test(url);
+    return (
+        /^(https?:|mailto:|tel:)/.test(url) ||
+        url.startsWith('/storage/') ||
+        /\.(pdf|docx?|xlsx?|pptx?|odt|csv|zip)$/i.test(url)
+    );
 }
 
 /**

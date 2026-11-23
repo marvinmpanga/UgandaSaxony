@@ -248,6 +248,7 @@ export function TabsSection({ content }: { content: Content }) {
 }
 
 interface Person {
+    id?: number;
     name: string;
     role?: string;
     image_url?: string;
@@ -288,7 +289,7 @@ export function PeopleSection({ content }: { content: Content }) {
             <div ref={track} className="no-scrollbar flex snap-x gap-8 overflow-x-auto pb-2">
                 {people.map((person, i) => (
                     <article
-                        key={person.name}
+                        key={person.id ?? `${person.name}-${i}`}
                         className="stagger-item group w-80 shrink-0 snap-start border-r border-border pr-8 last:border-r-0 sm:w-88"
                         style={{ '--stagger-index': i } as React.CSSProperties}
                     >

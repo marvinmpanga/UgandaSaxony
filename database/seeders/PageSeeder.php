@@ -806,7 +806,7 @@ class PageSeeder extends Seeder
                     'heading' => 'Download a',
                     'accent' => 'profile template',
                     'cards' => [
-                        ['title' => 'Template for Uganda-Saxony Organisation Profile', 'description' => 'For civil society organisations and other institutions. Fill it in and send it to the coordination team.', 'link_label' => 'Download (DOCX)', 'link_url' => 'https://uganda-saxonypartnership.org/cms/wp-content/uploads/2024/07/UPDATED-TEMPLATE-FOR-ORGANISATION-PROFILE.docx'],
+                        ['title' => 'Template for Uganda-Saxony Organisation Profile', 'description' => 'For civil society organisations and other institutions. Fill it in and send it to the coordination team.', 'link_label' => 'Download (DOCX)', 'link_url' => '/storage/templates/UPDATED-TEMPLATE-FOR-ORGANISATION-PROFILE.docx'],
                         ['title' => 'Template for School Partnership Profile', 'description' => 'For primary, secondary and vocational schools looking for a partner school in Saxony.', 'link_label' => 'Download (PDF)', 'link_url' => 'https://uganda-saxonypartnership.org/cms/wp-content/uploads/2024/05/Template-for-School-Partnership-Profile.pdf'],
                     ],
                 ]],

@@ -9,7 +9,9 @@ use App\Models\GalleryImage;
 use App\Models\Page;
 use App\Models\PageSection;
 use App\Models\Partner;
+use App\Models\ProfileTemplate;
 use App\Models\SiteStat;
+use App\Models\TeamMember;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -74,7 +76,7 @@ class PageController extends Controller
 
     /**
      * Hydrate page sections directly from Filament-managed database tables
-     * (SiteStats, Articles, Partners, GalleryImages) as the single source of truth.
+     * (SiteStats, Articles, Partners, GalleryImages, ProfileTemplates, TeamMembers) as the single source of truth.
      */
     private function hydrateDynamicSections(Page $page): void
     {
@@ -84,6 +86,8 @@ class PageController extends Controller
                 SectionType::Articles => $this->hydrateArticlesSection($section),
                 SectionType::Directory => $this->hydrateDirectorySection($section, $page->slug),
                 SectionType::Gallery => $this->hydrateGallerySection($section),
+                SectionType::FeaturedCards => $this->hydrateProfileTemplatesSection($section, $page->slug),
+                SectionType::People => $this->hydratePeopleSection($section),
                 default => null,
             };
         }
@@ -224,6 +228,57 @@ class PageController extends Controller
             'image_url' => $image->url,
             'caption' => $image->caption,
             'album' => $image->album,
+        ])->values()->all();
+
+        $section->setAttribute('content', $content);
+    }
+
+    private function hydrateProfileTemplatesSection(PageSection $section, string $pageSlug): void
+    {
+        if ($pageSlug !== 'join-the-partnership' || ! Schema::hasTable('profile_templates')) {
+            return;
+        }
+
+        $templates = ProfileTemplate::query()
+            ->active()
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        $content = $section->content ?? [];
+        $content['cards'] = $templates->map(fn (ProfileTemplate $template): array => [
+            'title' => $template->title,
+            'description' => $template->description,
+            'link_label' => $template->download_url ? $template->resolved_link_label : null,
+            'link_url' => $template->download_url,
+        ])->values()->all();
+
+        $section->setAttribute('content', $content);
+    }
+
+    private function hydratePeopleSection(PageSection $section): void
+    {
+        if (! Schema::hasTable('team_members')) {
+            return;
+        }
+
+        $members = TeamMember::query()
+            ->active()
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        $content = $section->content ?? [];
+        $content['people'] = $members->map(fn (TeamMember $member): array => [
+            'id' => $member->id,
+            'name' => $member->name,
+            'role' => $member->role,
+            'image_url' => $member->photo_url,
+            'email' => $member->email,
+            'phones' => array_values(array_filter(
+                is_array($member->phones) ? $member->phones : [],
+                fn (mixed $phone): bool => is_string($phone) && trim($phone) !== ''
+            )),
         ])->values()->all();
 
         $section->setAttribute('content', $content);
