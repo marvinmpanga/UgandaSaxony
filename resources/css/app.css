@@ -414,17 +414,6 @@
     .card-interactive:hover {
         transform: none;
     }
-
-    .reveal .pattern-halftone-wrap {
-        opacity: 1;
-        transform: scale(1);
-        transition: none;
-    }
-
-    .pattern-halftone-spin-cw,
-    .pattern-halftone-spin-ccw {
-        animation: none;
-    }
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -435,61 +424,10 @@
     scrollbar-width: none;
 }
 
-/* ---------- Decorative section background pattern masks & motion ---------- */
-@keyframes halftone-orbit-cw {
-    0% {
-        transform: rotate(0deg) scale(1);
-    }
-    50% {
-        transform: rotate(180deg) scale(1.04);
-    }
-    100% {
-        transform: rotate(360deg) scale(1);
-    }
-}
-
-@keyframes halftone-orbit-ccw {
-    0% {
-        transform: rotate(180deg) scale(1.03);
-    }
-    50% {
-        transform: rotate(0deg) scale(0.98);
-    }
-    100% {
-        transform: rotate(-180deg) scale(1.03);
-    }
-}
-
+/* ---------- Decorative section background pattern mask ---------- */
 .pattern-halftone-mask {
     -webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 1) 46%, rgba(0, 0, 0, 0) 78%);
     mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 1) 46%, rgba(0, 0, 0, 0) 78%);
-}
-
-.pattern-halftone-wrap {
-    will-change: transform, opacity;
-}
-
-.reveal .pattern-halftone-wrap {
-    opacity: 0;
-    transform: scale(0.86);
-    transition:
-        opacity 1.3s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 1.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.reveal.is-visible .pattern-halftone-wrap {
-    opacity: 1;
-    transform: scale(1);
-}
-
-.pattern-halftone-spin-cw {
-    animation: halftone-orbit-cw 90s linear infinite;
-    will-change: transform;
-}
-
-.pattern-halftone-spin-ccw {
-    animation: halftone-orbit-ccw 110s linear infinite;
-    will-change: transform;
 }
 
 /* ── TipTap rich text editor ── */
