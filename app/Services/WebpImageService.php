@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class WebpImageService
@@ -23,8 +24,46 @@ class WebpImageService
     ];
 
     /**
+     * Active or executable MIME types that must never be stored on the public disk.
+     *
+     * @var list<string>
+     */
+    private const DISALLOWED_MIMES = [
+        'image/svg+xml',
+        'text/html',
+        'application/xhtml+xml',
+        'application/javascript',
+        'text/javascript',
+        'application/x-httpd-php',
+        'text/x-php',
+        'application/x-php',
+    ];
+
+    /**
+     * File extensions that must never be stored on the public disk.
+     *
+     * @var list<string>
+     */
+    private const DISALLOWED_EXTENSIONS = [
+        'svg',
+        'svgz',
+        'html',
+        'htm',
+        'xhtml',
+        'js',
+        'mjs',
+        'php',
+        'phtml',
+        'phar',
+        'exe',
+        'sh',
+        'bat',
+    ];
+
+    /**
      * Convert an uploaded raster image to WebP (optionally resizing if wider than $maxWidth)
-     * and store it on the target disk. Non-image or SVG files are stored as-is.
+     * and store it on the target disk. Safe non-image files (e.g. PDFs) are stored as-is;
+     * active or executable file types are rejected.
      */
     public function storeUploadedFile(
         TemporaryUploadedFile|UploadedFile $file,
@@ -34,7 +73,15 @@ class WebpImageService
         int $maxWidth = 1920,
     ): string {
         $directory = trim($directory, '/');
-        $mimeType = (string) $file->getMimeType();
+        $mimeType = strtolower((string) $file->getMimeType());
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+
+        if (
+            in_array($mimeType, self::DISALLOWED_MIMES, true)
+            || in_array($extension, self::DISALLOWED_EXTENSIONS, true)
+        ) {
+            throw new InvalidArgumentException('Uploaded file type is not permitted.');
+        }
 
         if (! function_exists('imagewebp') || ! in_array($mimeType, self::CONVERTIBLE_MIMES, true)) {
             return (string) $file->store($directory, $disk);

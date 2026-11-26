@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowUpRight, BookOpen, Calendar, FileDown, Search } from 'lucide-react';
 import * as React from 'react';
+import { SectionPattern } from '@/components/sections/SectionPattern';
 import { PublicLayout } from '@/layouts/PublicLayout';
 import { cn } from '@/lib/utils';
 
@@ -111,8 +112,9 @@ export default function ResourceCentreIndex({ resources, categories }: ResourceC
             </section>
 
             {/* Published Resources */}
-            <section className="py-12 sm:py-20">
-                <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+            <section className="relative overflow-clip py-12 sm:py-20">
+                <SectionPattern variant="halftone-dual" />
+                <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
                     <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex flex-wrap items-center gap-2">
                             <button

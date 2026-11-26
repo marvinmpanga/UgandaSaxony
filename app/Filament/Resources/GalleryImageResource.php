@@ -56,6 +56,7 @@ class GalleryImageResource extends Resource
                             ->disk('public')
                             ->directory('gallery')
                             ->image()
+                            ->maxSize(10240)
                             ->imageEditor()
                             ->required()
                             ->helperText('Automatically converted to WebP for fast gallery loading.')

@@ -89,11 +89,15 @@ class RoleAndPermissionSeeder extends Seeder
             $role->syncPermissions($assignedPermissions);
         }
 
+        if (app()->isProduction() && blank(env('ADMIN_SEED_PASSWORD'))) {
+            return;
+        }
+
         $admin = User::firstOrCreate(
-            ['email' => 'admin@ugandasaxony.org'],
+            ['email' => env('ADMIN_SEED_EMAIL', 'admin@ugandasaxony.org')],
             [
                 'name' => 'Partnership Administrator',
-                'password' => Hash::make('password'),
+                'password' => Hash::make((string) env('ADMIN_SEED_PASSWORD', 'password')),
                 'email_verified_at' => now(),
             ]
         );

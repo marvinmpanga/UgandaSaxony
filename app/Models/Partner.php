@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\RichTextSanitizer;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -53,6 +54,12 @@ class Partner extends Model
         static::creating(function (Partner $partner): void {
             if (blank($partner->slug) && filled($partner->name)) {
                 $partner->slug = static::generateSlug($partner->name);
+            }
+        });
+
+        static::saving(function (Partner $partner): void {
+            if ($partner->isDirty('description') && $partner->description !== null) {
+                $partner->description = app(RichTextSanitizer::class)->sanitize($partner->description);
             }
         });
     }

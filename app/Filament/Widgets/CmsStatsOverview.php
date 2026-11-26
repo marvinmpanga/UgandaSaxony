@@ -20,46 +20,70 @@ class CmsStatsOverview extends BaseWidget
 {
     protected static ?int $sort = 2;
 
+    public static function canView(): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('pages.view') || $user->can('media.view') || $user->can('settings.manage');
+    }
+
     protected function getStats(): array
     {
-        $publishedArticles = Article::published()->count();
-        $totalArticles = Article::query()->count();
+        $user = auth()->user();
+        $stats = [];
 
-        $activePartners = Partner::active()->count();
-        $totalPartners = Partner::query()->count();
+        if ($user?->can('pages.view')) {
+            $publishedArticles = Article::published()->count();
+            $totalArticles = Article::query()->count();
 
-        $publishedResources = ResourceItem::published()->count();
-        $totalResources = ResourceItem::query()->count();
+            $activePartners = Partner::active()->count();
+            $totalPartners = Partner::query()->count();
 
-        $visibleGallery = GalleryImage::visible()->count();
-        $totalMedia = MediaItem::query()->count();
+            $publishedResources = ResourceItem::published()->count();
+            $totalResources = ResourceItem::query()->count();
 
-        return [
-            Stat::make('Events & News', "{$publishedArticles} published")
+            $stats[] = Stat::make('Events & News', "{$publishedArticles} published")
                 ->description("{$totalArticles} total · Live on Hero & Events")
                 ->icon('heroicon-o-newspaper')
                 ->color('primary')
-                ->url(ArticleResource::getUrl('index')),
-            Stat::make('Partnerships', "{$activePartners} active")
+                ->url(ArticleResource::getUrl('index'));
+
+            $stats[] = Stat::make('Partnerships', "{$activePartners} active")
                 ->description("{$totalPartners} total schools & CSOs")
                 ->icon('heroicon-o-building-office-2')
                 ->color('success')
-                ->url(PartnerResource::getUrl('index')),
-            Stat::make('Resource Centre', "{$publishedResources} published")
+                ->url(PartnerResource::getUrl('index'));
+
+            $stats[] = Stat::make('Resource Centre', "{$publishedResources} published")
                 ->description("{$totalResources} total guides & documents")
                 ->icon('heroicon-o-book-open')
                 ->color('info')
-                ->url(ResourceResource::getUrl('index')),
-            Stat::make('Gallery & Media', $visibleGallery)
+                ->url(ResourceResource::getUrl('index'));
+        }
+
+        if ($user?->can('media.view')) {
+            $visibleGallery = GalleryImage::visible()->count();
+            $totalMedia = MediaItem::query()->count();
+
+            $stats[] = Stat::make('Gallery & Media', $visibleGallery)
                 ->description("{$visibleGallery} gallery photos · {$totalMedia} library files")
                 ->icon('heroicon-o-photo')
                 ->color('warning')
-                ->url(GalleryImageResource::getUrl('index')),
-            Stat::make('Homepage Stats', SiteStat::query()->count())
+                ->url(GalleryImageResource::getUrl('index'));
+        }
+
+        if ($user?->can('settings.manage')) {
+            $stats[] = Stat::make('Homepage Stats', SiteStat::query()->count())
                 ->description('Key figures on homepage bar')
                 ->icon('heroicon-o-chart-bar')
                 ->color('gray')
-                ->url(SiteStatResource::getUrl('index')),
-        ];
+                ->url(SiteStatResource::getUrl('index'));
+        }
+
+        return $stats;
     }
 }

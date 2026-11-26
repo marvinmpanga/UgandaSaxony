@@ -18,6 +18,11 @@ class LatestArticlesWidget extends BaseWidget
 
     protected static ?string $heading = 'Recent Events & News (Live on Homepage Hero)';
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->can('pages.view') ?? false;
+    }
+
     public function table(Table $table): Table
     {
         return $table
@@ -52,7 +57,8 @@ class LatestArticlesWidget extends BaseWidget
                 Tables\Actions\Action::make('edit')
                     ->label('Edit')
                     ->icon('heroicon-o-pencil-square')
-                    ->url(fn (Article $record): string => ArticleResource::getUrl('edit', ['record' => $record])),
+                    ->url(fn (Article $record): string => ArticleResource::getUrl('edit', ['record' => $record]))
+                    ->visible(fn (): bool => auth()->user()?->can('pages.edit') ?? false),
                 Tables\Actions\Action::make('view')
                     ->label('View Live')
                     ->icon('heroicon-o-arrow-top-right-on-square')

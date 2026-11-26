@@ -86,12 +86,14 @@ class PartnerResource extends Resource
                         Forms\Components\TextInput::make('website_url')
                             ->label('Website URL')
                             ->url()
+                            ->rule('url:http,https')
                             ->maxLength(500),
                         Forms\Components\FileUpload::make('logo_url')
                             ->label('Logo')
                             ->disk('public')
                             ->directory('partners/logos')
                             ->image()
+                            ->maxSize(5120)
                             ->helperText('Automatically optimized to WebP.')
                             ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => app(WebpImageService::class)->storeUploadedFile($file, 'partners/logos', maxWidth: 600))
                             ->columnSpanFull(),

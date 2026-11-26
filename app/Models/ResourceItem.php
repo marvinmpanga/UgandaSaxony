@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\RichTextSanitizer;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -59,6 +60,12 @@ class ResourceItem extends Model
         static::creating(function (ResourceItem $resource): void {
             if (blank($resource->slug) && filled($resource->title)) {
                 $resource->slug = static::generateSlug($resource->title);
+            }
+        });
+
+        static::saving(function (ResourceItem $resource): void {
+            if ($resource->isDirty('body') && $resource->body !== null) {
+                $resource->body = app(RichTextSanitizer::class)->sanitize($resource->body);
             }
         });
     }

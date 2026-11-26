@@ -78,10 +78,14 @@ class ArticleResource extends Resource
                         Forms\Components\DatePicker::make('event_date')
                             ->label('Event Date'),
                         Forms\Components\Select::make('status')
-                            ->options([
-                                'draft' => 'Draft',
-                                'published' => 'Published',
-                            ])
+                            ->options(fn (?Article $record): array => auth()->user()?->can('pages.publish') || $record?->status === 'published'
+                                ? ['draft' => 'Draft', 'published' => 'Published']
+                                : ['draft' => 'Draft']
+                            )
+                            ->in(fn (?Article $record): array => auth()->user()?->can('pages.publish') || $record?->status === 'published'
+                                ? ['draft', 'published']
+                                : ['draft']
+                            )
                             ->default('draft')
                             ->helperText('Published articles appear on the Homepage Hero and Events & News page.')
                             ->required(),
@@ -107,6 +111,7 @@ class ArticleResource extends Resource
                             ->disk('public')
                             ->directory('articles/covers')
                             ->image()
+                            ->maxSize(10240)
                             ->imageEditor()
                             ->helperText('Automatically converted to WebP for faster loading.')
                             ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => app(WebpImageService::class)->storeUploadedFile($file, 'articles/covers')),
@@ -124,6 +129,7 @@ class ArticleResource extends Resource
                                     ->disk('public')
                                     ->directory('articles/gallery')
                                     ->image()
+                                    ->maxSize(10240)
                                     ->required()
                                     ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => app(WebpImageService::class)->storeUploadedFile($file, 'articles/gallery')),
                                 Forms\Components\TextInput::make('caption')

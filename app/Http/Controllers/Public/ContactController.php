@@ -27,10 +27,12 @@ class ContactController extends Controller
             $data['message'],
         ]);
 
-        Mail::raw($body, function (Message $message) use ($data): void {
+        $safeName = trim((string) preg_replace('/[\r\n\t\x00-\x1F\x7F]+/', ' ', $data['from_name']));
+
+        Mail::raw($body, function (Message $message) use ($data, $safeName): void {
             $message->to(config('partnership.contact_recipient'))
-                ->replyTo($data['from_email'], $data['from_name'])
-                ->subject('Website enquiry from '.$data['from_name']);
+                ->replyTo($data['from_email'], $safeName)
+                ->subject('Website enquiry from '.$safeName);
         });
 
         return back()->with('success', 'Thank you — your message has been sent.');

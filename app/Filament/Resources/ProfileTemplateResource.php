@@ -89,6 +89,7 @@ class ProfileTemplateResource extends Resource
                             ->label('Upload Document')
                             ->disk('public')
                             ->directory('templates')
+                            ->maxSize(20480)
                             ->preserveFilenames()
                             ->downloadable()
                             ->openable()
@@ -107,6 +108,7 @@ class ProfileTemplateResource extends Resource
                         Forms\Components\TextInput::make('external_url')
                             ->label('External Download URL (Optional)')
                             ->url()
+                            ->rule('url:http,https')
                             ->maxLength(2048)
                             ->placeholder('https://...')
                             ->helperText('Used only if no file is uploaded above.'),

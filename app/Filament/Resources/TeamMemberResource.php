@@ -98,6 +98,7 @@ class TeamMemberResource extends Resource
                             ->disk('public')
                             ->directory('team')
                             ->image()
+                            ->maxSize(5120)
                             ->imageEditor()
                             ->helperText('Automatically converted to WebP for fast loading. Recommended aspect ratio 4:5.')
                             ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => app(WebpImageService::class)->storeUploadedFile($file, 'team')),

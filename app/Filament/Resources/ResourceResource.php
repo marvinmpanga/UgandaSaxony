@@ -87,10 +87,14 @@ class ResourceResource extends Resource
                             ->placeholder('e.g. Guides & Reports, Funding Opportunities')
                             ->maxLength(100),
                         Forms\Components\Select::make('status')
-                            ->options([
-                                'draft' => 'Draft',
-                                'published' => 'Published',
-                            ])
+                            ->options(fn (?ResourceItem $record): array => auth()->user()?->can('pages.publish') || $record?->status === 'published'
+                                ? ['draft' => 'Draft', 'published' => 'Published']
+                                : ['draft' => 'Draft']
+                            )
+                            ->in(fn (?ResourceItem $record): array => auth()->user()?->can('pages.publish') || $record?->status === 'published'
+                                ? ['draft', 'published']
+                                : ['draft']
+                            )
                             ->default('draft')
                             ->required(),
                         Forms\Components\DateTimePicker::make('published_at')
@@ -117,6 +121,7 @@ class ResourceResource extends Resource
                             ->disk('public')
                             ->directory('resources/covers')
                             ->image()
+                            ->maxSize(10240)
                             ->imageEditor()
                             ->helperText('Automatically converted to WebP.')
                             ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => app(WebpImageService::class)->storeUploadedFile($file, 'resources/covers')),
@@ -124,6 +129,7 @@ class ResourceResource extends Resource
                             ->label('Downloadable Document (Optional)')
                             ->disk('public')
                             ->directory('resources/documents')
+                            ->maxSize(20480)
                             ->acceptedFileTypes([
                                 'application/pdf',
                                 'application/msword',

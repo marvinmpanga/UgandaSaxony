@@ -117,7 +117,7 @@ export function ArticlesSection({ content }: { content: Content }) {
     }, [pagination?.has_more, loadingMore, loadError, loadMore]);
 
     return (
-        <SectionShell>
+        <SectionShell pattern="halftone-dual">
             <SectionHeading
                 index={content.index}
                 label={content.label}

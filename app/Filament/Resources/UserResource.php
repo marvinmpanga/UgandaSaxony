@@ -9,6 +9,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
@@ -36,13 +38,20 @@ class UserResource extends Resource
 
     public static function canEdit($record): bool
     {
-        return auth()->user()?->can('users.manage') ?? false;
+        if (! (auth()->user()?->can('users.manage') ?? false)) {
+            return false;
+        }
+
+        return ! $record->hasRole('Super Admin') || (auth()->user()?->hasRole('Super Admin') ?? false);
     }
 
     public static function canDelete($record): bool
     {
-        return (auth()->user()?->can('users.manage') ?? false)
-            && $record->id !== auth()->id();
+        if (! (auth()->user()?->can('users.manage') ?? false) || $record->id === auth()->id()) {
+            return false;
+        }
+
+        return ! $record->hasRole('Super Admin') || (auth()->user()?->hasRole('Super Admin') ?? false);
     }
 
     public static function form(Form $form): Form
@@ -68,7 +77,13 @@ class UserResource extends Resource
                             ->dehydrated(fn (?string $state): bool => filled($state))
                             ->dehydrateStateUsing(fn (string $state): string => Hash::make($state)),
                         Forms\Components\Select::make('roles')
-                            ->relationship('roles', 'name')
+                            ->relationship(
+                                name: 'roles',
+                                titleAttribute: 'name',
+                                modifyQueryUsing: fn (Builder $query): Builder => auth()->user()?->hasRole('Super Admin')
+                                    ? $query
+                                    : $query->where('name', '!=', 'Super Admin'),
+                            )
                             ->multiple()
                             ->preload()
                             ->searchable()
@@ -103,7 +118,14 @@ class UserResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->action(function (Collection $records): void {
+                            $records->each(function (User $record): void {
+                                if (static::canDelete($record)) {
+                                    $record->delete();
+                                }
+                            });
+                        }),
                 ]),
             ]);
     }

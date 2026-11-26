@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\RichTextSanitizer;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -63,6 +64,12 @@ class Article extends Model
         static::creating(function (Article $article): void {
             if (blank($article->slug) && filled($article->title)) {
                 $article->slug = static::generateSlug($article->title);
+            }
+        });
+
+        static::saving(function (Article $article): void {
+            if ($article->isDirty('body') && $article->body !== null) {
+                $article->body = app(RichTextSanitizer::class)->sanitize($article->body);
             }
         });
     }

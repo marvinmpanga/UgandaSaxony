@@ -40,8 +40,24 @@ class MediaItemResource extends Resource
                             ->disk('public')
                             ->directory('media')
                             ->storeFileNamesIn('original_name')
+                            ->acceptedFileTypes([
+                                'image/jpeg',
+                                'image/png',
+                                'image/gif',
+                                'image/webp',
+                                'image/bmp',
+                                'application/pdf',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/vnd.ms-powerpoint',
+                                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                                'application/vnd.oasis.opendocument.text',
+                            ])
+                            ->maxSize(10240)
                             ->required()
-                            ->helperText('Uploaded raster images are automatically converted to WebP.')
+                            ->helperText('Uploaded raster images are automatically converted to WebP. Max size: 10 MB.')
                             ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => app(WebpImageService::class)->storeUploadedFile($file, 'media'))
                             ->columnSpanFull(),
                         Forms\Components\Select::make('folder_id')

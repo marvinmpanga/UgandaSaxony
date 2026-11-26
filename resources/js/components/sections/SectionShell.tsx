@@ -1,22 +1,29 @@
 import * as React from 'react';
+import { SectionPattern, type SectionPatternVariant } from '@/components/sections/SectionPattern';
 import { useReveal } from '@/hooks/useReveal';
 import { cn } from '@/lib/utils';
 
 interface SectionShellProps extends React.HTMLAttributes<HTMLElement> {
     children: React.ReactNode;
     width?: 'narrow' | 'default' | 'wide';
+    pattern?: SectionPatternVariant;
 }
 
 /**
  * Common wrapper for public sections: generous volume, consistent width, vertical rhythm and reveal-on-scroll.
  */
-export function SectionShell({ children, className, width = 'default', ...props }: SectionShellProps) {
+export function SectionShell({ children, className, width = 'default', pattern, ...props }: SectionShellProps) {
     const ref = useReveal<HTMLElement>();
     const widths = { narrow: 'max-w-4xl', default: 'max-w-7xl', wide: 'max-w-[1400px]' };
 
     return (
-        <section ref={ref} className={cn('reveal py-20 sm:py-28 lg:py-32', className)} {...props}>
-            <div className={cn('mx-auto px-5 sm:px-8 lg:px-10', widths[width])}>{children}</div>
+        <section
+            ref={ref}
+            className={cn('reveal py-20 sm:py-28 lg:py-32', pattern && 'relative overflow-clip', className)}
+            {...props}
+        >
+            {pattern && <SectionPattern variant={pattern} />}
+            <div className={cn('relative z-10 mx-auto px-5 sm:px-8 lg:px-10', widths[width])}>{children}</div>
         </section>
     );
 }
